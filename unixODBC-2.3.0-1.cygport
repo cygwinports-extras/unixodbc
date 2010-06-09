@@ -1,0 +1,5 @@
+DESCRIPTION="ODBC implementation for *NIX systems"
+HOMEPAGE="http://www.unixodbc.org/"
+SRC_URI="http://www.unixodbc.org/${P}.tar.gz"
+
+DIFF_EXCLUDES="libltdl"

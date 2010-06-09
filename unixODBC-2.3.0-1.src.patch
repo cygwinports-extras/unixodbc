@@ -1,0 +1,64 @@
+--- origsrc/unixODBC-2.3.0/odbcinst/SQLManageDataSources.c	2009-12-11 10:54:10.000000000 -0600
++++ src/unixODBC-2.3.0/odbcinst/SQLManageDataSources.c	2010-06-04 16:35:44.331150100 -0500
+@@ -12,6 +12,12 @@
+ #include <config.h>
+ #include <odbcinstext.h>
+ 
++#ifdef __CYGWIN__
++#define SHLIBPFX "cyg"
++#else
++#define SHLIBPFX "lib"
++#endif
++
+ /*! 
+  * \brief   Get the short name of the UI plugin.
+  * 
+@@ -31,7 +37,7 @@ char *_getUIPluginName( char *pszName, c
+     /* is it being provided by caller? */
+     if ( pszUI && *pszUI )
+     {
+-        sprintf( pszName, "lib%s", pszUI );
++        sprintf( pszName, SHLIBPFX"%s", pszUI );
+         return pszName;
+     }
+ 
+@@ -40,7 +46,7 @@ char *_getUIPluginName( char *pszName, c
+         char *pEnvVar = getenv( "ODBCINSTUI" );
+         if ( pEnvVar )
+         {
+-            sprintf( pszName, "lib%s", pEnvVar );
++            sprintf( pszName, SHLIBPFX"%s", pEnvVar );
+             return pszName;
+         }
+     }
+@@ -52,13 +58,13 @@ char *_getUIPluginName( char *pszName, c
+         SQLGetPrivateProfileString( "ODBC", "ODBCINSTUI", "", sz, FILENAME_MAX, "odbcinst.ini" );
+         if ( *sz )
+         {
+-            sprintf( pszName, "lib%s", sz );
++            sprintf( pszName, SHLIBPFX"%s", sz );
+             return pszName;
+         }
+     }
+ 
+     /* default to qt4 */
+-    strcpy( pszName, "libodbcinstQ4" );
++    strcpy( pszName, SHLIBPFX"odbcinstQ4" );
+ 
+     return pszName;
+ }
+@@ -75,10 +81,14 @@ char *_getUIPluginName( char *pszName, c
+  */
+ char *_appendUIPluginExtension( char *pszNameAndExtension, char *pszName )
+ {
++#ifdef __CYGWIN__
++    sprintf( pszNameAndExtension, "%s-1.dll", pszName );
++#else
+     if ( strlen( SHLIBEXT ) > 0 )
+         sprintf( pszNameAndExtension, "%s%s", pszName, SHLIBEXT );
+     else
+         sprintf( pszNameAndExtension, "%s.so", pszName );
++#endif
+ 
+     return pszName;
+ }
